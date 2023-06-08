@@ -155,6 +155,7 @@ func (et *endpointTranslator) filterAddresses() watcher.AddressSet {
 			for k, v := range et.availableEndpoints.Addresses {
 				filtered[k] = v
 			}
+			et.log.Debugf("Hints not available on endpointslice. Zone Filtering disabled. Falling back to routing to all pods")
 			return watcher.AddressSet{
 				Addresses:          filtered,
 				Labels:             et.availableEndpoints.Labels,
@@ -257,10 +258,7 @@ func (et *endpointTranslator) sendClientAdd(set watcher.AddressSet) {
 			err         error
 		)
 		if address.Pod != nil {
-			opaquePorts, err = getAnnotatedOpaquePorts(address.Pod, et.defaultOpaquePorts)
-			if err != nil {
-				et.log.Errorf("failed to get opaque ports for pod %s/%s: %s", address.Pod.Namespace, address.Pod.Name, err)
-			}
+			opaquePorts = getAnnotatedOpaquePorts(address.Pod, et.defaultOpaquePorts)
 			wa, err = createWeightedAddr(address, opaquePorts, et.enableH2Upgrade, et.identityTrustDomain, et.controllerNS, et.log)
 		} else {
 			var authOverride *pb.AuthorityOverride

@@ -1,5 +1,6 @@
 # Linkerd 2.x adopters
 
+- [Ada](http://www.ada.cx)
 - [Advance Latam](http://www.advlatam.com)
 - [Allotrac](https://allotrac.com.au)
 - [AlphaSights](https://www.alphasights.com)
@@ -67,6 +68,7 @@
 - [Paybase](https://paybase.io/)
 - [Pento](https://pento.io/)
 - [Personio](https://www.personio.com/)
+- [PITS Global Data Recovery Services](https://www.pitsdatarecovery.net/)
 - [PlayStudios Asia](https://www.playstudios.asia)
 - [PlexTrac](https://plextrac.com)
 - [PriceKinetics (GVC Australia)](https://www.pricekinetics.com.au/)

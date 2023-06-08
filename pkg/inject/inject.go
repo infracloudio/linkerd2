@@ -73,6 +73,8 @@ var (
 		k8s.ProxySkipSubnetsAnnotation,
 		k8s.ProxyAccessLogAnnotation,
 		k8s.ProxyShutdownGracePeriodAnnotation,
+		k8s.ProxyOutboundDiscoveryCacheUnusedTimeout,
+		k8s.ProxyInboundDiscoveryCacheUnusedTimeout,
 	}
 	// ProxyAlphaConfigAnnotations is the list of all alpha configuration
 	// (config.alpha prefix) that can be applied to a pod or namespace.
@@ -934,6 +936,24 @@ func (conf *ResourceConfig) applyAnnotationOverrides(values *l5dcharts.Values) {
 		}
 	}
 
+	if override, ok := annotations[k8s.ProxyOutboundDiscoveryCacheUnusedTimeout]; ok {
+		duration, err := time.ParseDuration(override)
+		if err != nil {
+			log.Warnf("unrecognized duration value used on pod annotation %s: %s", k8s.ProxyOutboundDiscoveryCacheUnusedTimeout, err.Error())
+		} else {
+			values.Proxy.OutboundDiscoveryCacheUnusedTimeout = fmt.Sprintf("%ds", int(duration.Seconds()))
+		}
+	}
+
+	if override, ok := annotations[k8s.ProxyInboundDiscoveryCacheUnusedTimeout]; ok {
+		duration, err := time.ParseDuration(override)
+		if err != nil {
+			log.Warnf("unrecognized duration value used on pod annotation %s: %s", k8s.ProxyInboundDiscoveryCacheUnusedTimeout, err.Error())
+		} else {
+			values.Proxy.InboundDiscoveryCacheUnusedTimeout = fmt.Sprintf("%ds", int(duration.Seconds()))
+		}
+	}
+
 	if override, ok := annotations[k8s.ProxyShutdownGracePeriodAnnotation]; ok {
 		duration, err := time.ParseDuration(override)
 		if err != nil {
@@ -1051,8 +1071,15 @@ func (conf *ResourceConfig) applyAnnotationOverrides(values *l5dcharts.Values) {
 	}
 
 	if override, ok := annotations[k8s.ProxyOpaquePortsAnnotation]; ok {
-		opaquePortsStrs := util.ParseContainerOpaquePorts(override, conf.pod.spec.Containers)
-		values.Proxy.OpaquePorts = strings.Join(opaquePortsStrs, ",")
+		var opaquePorts strings.Builder
+		for _, pr := range util.ParseContainerOpaquePorts(override, conf.pod.spec.Containers) {
+			if opaquePorts.Len() > 0 {
+				opaquePorts.WriteRune(',')
+			}
+			opaquePorts.WriteString(pr.ToString())
+		}
+
+		values.Proxy.OpaquePorts = opaquePorts.String()
 	}
 
 	if override, ok := annotations[k8s.DebugImageAnnotation]; ok {

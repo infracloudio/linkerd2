@@ -121,16 +121,6 @@ spec:
       linkerd.io/control-plane-component: destination
 {{- end }}
 ---
-apiVersion: coordination.k8s.io/v1
-kind: Lease
-metadata:
-  name: policy-controller-write
-  namespace: {{ .Release.Namespace }}
-  labels:
-    linkerd.io/control-plane-component: destination
-    linkerd.io/control-plane-ns: {{.Release.Namespace}}
-    {{- with .Values.commonLabels }}{{ toYaml . | trim | nindent 4 }}{{- end }}
----
 {{- $tree := deepCopy . }}
 {{ $_ := set $tree.Values.proxy "workloadKind" "deployment" -}}
 {{ $_ := set $tree.Values.proxy "component" "linkerd-destination" -}}
@@ -194,6 +184,8 @@ spec:
       {{- $_ := set $tree.Values.proxy "await" $tree.Values.proxy.await }}
       {{- $_ := set $tree.Values.proxy "loadTrustBundleFromConfigMap" true }}
       {{- $_ := set $tree.Values.proxy "podInboundPorts" "8086,8090,8443,9443,9990,9996,9997" }}
+      {{- $_ := set $tree.Values.proxy "outboundDiscoveryCacheUnusedTimeout" "5s" }}
+      {{- $_ := set $tree.Values.proxy "inboundDiscoveryCacheUnusedTimeout" "90s" }}
       {{- /*
         The pod needs to accept webhook traffic, and we can't rely on that originating in the
         cluster network.

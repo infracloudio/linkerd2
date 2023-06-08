@@ -552,6 +552,7 @@ fn mk_admin_route(ns: &str, name: &str) -> k8s::policy::HttpRoute {
                 }]),
                 filters: None,
                 backend_refs: None,
+                timeouts: None,
             }]),
         },
         status: None,
@@ -592,6 +593,7 @@ fn mk_admin_route_with_path(ns: &str, name: &str, path: &str) -> k8s::policy::Ht
                 }]),
                 filters: None,
                 backend_refs: None,
+                timeouts: None,
             }]),
         },
         status: None,
@@ -655,7 +657,6 @@ async fn retry_watch_server(
     }
 }
 
-#[track_caller]
 async fn next_config(rx: &mut tonic::Streaming<grpc::inbound::Server>) -> grpc::inbound::Server {
     let config = rx
         .next()

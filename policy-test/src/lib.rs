@@ -19,7 +19,7 @@ pub enum LinkerdInject {
 }
 
 /// Creates a cluster-scoped resource.
-async fn create_cluster_scoped<T>(client: &kube::Client, obj: T) -> T
+pub async fn create_cluster_scoped<T>(client: &kube::Client, obj: T) -> T
 where
     T: kube::Resource<Scope = kube::core::ClusterResourceScope>,
     T: serde::Serialize + serde::de::DeserializeOwned + Clone + std::fmt::Debug,
@@ -36,6 +36,21 @@ where
         .expect("failed to create resource")
 }
 
+/// Creates a cluster-scoped resource.
+pub async fn delete_cluster_scoped<T>(client: &kube::Client, obj: T)
+where
+    T: kube::Resource<Scope = kube::core::ClusterResourceScope>,
+    T: serde::Serialize + serde::de::DeserializeOwned + Clone + std::fmt::Debug,
+    T::DynamicType: Default,
+{
+    let params = kube::api::DeleteParams {
+        ..Default::default()
+    };
+    let api = kube::Api::<T>::all(client.clone());
+    tracing::trace!(?obj, "Deleting");
+    api.delete(&obj.name_unchecked(), &params).await.unwrap();
+}
+
 /// Creates a namespace-scoped resource.
 pub async fn create<T>(client: &kube::Client, obj: T) -> T
 where
@@ -49,7 +64,7 @@ where
     };
     let api = obj
         .namespace()
-        .map(|ns| kube::Api::<T>::namespaced(client.clone(), &*ns))
+        .map(|ns| kube::Api::<T>::namespaced(client.clone(), &ns))
         .unwrap_or_else(|| kube::Api::<T>::default_namespaced(client.clone()));
     tracing::trace!(?obj, "Creating");
     api.create(&params, &obj)

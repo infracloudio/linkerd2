@@ -1,5 +1,76 @@
 # Changes
 
+## edge-23.5.3
+
+This edge release includes fixes for several bugs related to HTTPRoute handling.
+
+* Fixed an issue where the `namespace` field on HTTPRoute `backendRef`s was
+  ignored, and the backend Service would always be assumed to be in the
+  namespace as the parent Service
+* Fixed an issue where default authorizations generated for readiness and
+  liveness probes would fail if the probe path included URI query parameters
+* Fixed the proxy not using gRPC response classification for gRPC requests to
+  destinations without ServiceProfiles
+
+## edge-23.5.2
+
+This edge release adds some minor improvements in the MeshTLSAuthentication CRD
+and the extensions charts, and fixes an issue with `linkerd multicluster check`.
+
+* Added tolerations and nodeSelector support in extensions `namespace-metadata`
+  Jobs (thanks @pssalman!)
+* Patched the MeshTLSAuthentication CRD to force providing at least one
+  identity/identityRef
+* Fixed the `linkerd multicluster check` command failing in the presence of lots
+  of mirrored services
+
+## edge-23.5.1
+
+This edge release introduces the ability to configure the proxy's discovery cache
+timeouts via annotations. While most users will not need to do this, it can be
+useful to improve the mesh's resilience to control plane failures. This release
+also includes a number of other important improvements and bug fixes.
+
+* Added -o json flag for the `linkerd multicluster gateways` command (thanks
+  @hiteshwani29)
+* Added missing label `linkerd.io/extension` to certain resources to ensure they
+  pruned when appropriate (thanks @ClementRepo)
+* Fixed a memory leak in the service mirror controller
+* Improved validation of the `--to` and `--from` flags for the `linkerd viz stat`
+  command (thanks @pranoyk)
+* Fixed an issue with W3C trace context propagation which caused proxy spans to
+  be siblings rather than children of their original parent (thanks
+  @whiskeysierra)
+* Updated the Linkerd CNI plugin base docker image from Debian to Alpine
+* Fixed an issue where specifying a `remote_write` config would cause the
+  Prometheus config to be invalid (thanks @hiteshwani29)
+* Added the ability to configure the proxy's discovery cache timeouts with the
+  `config.linkerd.io/proxy-outbound-discovery-cache-unused-timeout` and
+  `config.linkerd.io/proxy-inbound-discovery-cache-unused-timeout` annotations
+* Fixed the `linkerd viz check` command so that it will wait until the viz
+  extension becomes ready
+* Fixed an issue where meshed pods could not communicate with themselves through
+  a ClusterIP Service
+
+## edge-23.4.3
+
+This edge release improves compatibility with ArgoCD by changing the Linkerd
+control plane to create Lease resources at runtime rather than including them
+in the Helm chart. It also addresses a CVE by upgrading an underlying
+dependency.
+
+* Upgraded `h2` dependency to address CVE-2023-26964
+* Fixed an issue where `server_port_subscribers` metric in the Destination
+  controller was sometimes absent
+* Removed the policy-controller-write Lease from the control plane Helm chart in
+  favor of creating it at runtime
+* Updated the proxy-injector to pass opaque port lists to the proxy as ranges
+  rather than individually, greatly reducing the size of proxy manifests when
+  large opaque port ranges are set
+* Fixed an issue where the proxy was performing protocol detection on ports
+  marked as opaque
+* Improved backwards compatibility between 2.13 proxies and 2.12 control planes
+
 ## edge-23.4.2
 
 This edge release contains a number of bug fixes.
