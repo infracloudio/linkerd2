@@ -1,5 +1,33 @@
 # Changes
 
+## edge-23.6.2
+
+This edge release introduces timeout capabilities for HTTPRoutes in a manner
+compatible with the proposed changes to HTTPRoute in
+[kubernetes-sigs/gateway-api#1997](https://github.com/kubernetes-sigs/gateway-api/pull/1997).
+
+This release also includes several small improvements and fixes:
+
+* A fix for HA validation checks when Linkerd is installed with Helm. Thanks
+@mikutas!!
+* Build improvements for multi-arch build artifacts. Thanks @MarkSRobinson!!
+
+## edge-23.6.1
+
+This edge release changes the behavior of the CNI plugin to run exclusively in
+"chained mode". Instead of creating its own configuration file, the CNI plugin
+will now wait until a `conf` file exists before appending its configuration.
+Additionally, this change includes a bug fix for topology aware service
+routing.
+
+* Changed the CNI plugin installer to always run in 'chained' mode; the plugin will
+  now wait until another CNI plugin is installed before appending its
+  configuration
+* Fixed bug where topology routing would not disable while service was under
+  load (thanks @MarkSRobinson!)
+* Introduced `logFormat` value to the multicluster `Link` Helm Chart (thanks
+  @bunnybilou!)
+
 ## edge-23.5.3
 
 This edge release includes fixes for several bugs related to HTTPRoute handling.
